@@ -10,6 +10,9 @@ classification_output_values = [1,0,1] #The value assigned to each interval
 from osgeo import gdal  
 from osgeo.gdalconst import *  
 import numpy  
+import time
+
+startTime = time.time()
       
 #Opening the raster file  
 dataset = gdal.Open(raster_file, GA_ReadOnly )  
@@ -89,3 +92,5 @@ outBand = None
       
 # output_dataset.GetRasterBand(1).WriteRaster( 0, 0, xsize, ysize, out_str )   
 # output_dataset = None  
+endTime = time.time()
+print 'The script took ' + str(endTime - startTime) + ' seconds.'
