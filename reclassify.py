@@ -10,7 +10,10 @@ classification_output_values = [1,0,1] #The value assigned to each interval
 from osgeo import gdal  
 from osgeo.gdalconst import *  
 import numpy  
-      
+import time
+
+startTime = time.time()
+ 
 #Opening the raster file  
 dataset = gdal.Open(raster_file, GA_ReadOnly )  
 
@@ -43,28 +46,37 @@ outBand = outDataset.GetRasterBand(1)
 #outBand.GetStatistics(0,1)
 
 # loop through the rows
-for i in range(0, rows, yBSize):
-    if i + yBSize < rows:
-        numRows = yBSize
-    else:
-        numRows = rows - i
+# for i in range(0, rows, yBSize):
+#     if i + yBSize < rows:
+#         numRows = yBSize
+#     else:
+#         numRows = rows - i
     # loop throough the columns
-    for j in (0, cols, xBSize):
-        if j + xBSize < cols:
-            numCols = xBSize
-        else:
-            numCols = cols - j
-        # Read the data and do the work
-        data = band.ReadAsArray(j, i, numCols, numRows)
-        data = data.astype(numpy.float)
-        outData = numpy.where(numpy.greater(data, 0) & numpy.less_equal(data,67.5),1 ,0)
-        outBand.WriteArray(outData, j, i)
-outBand.FlushCache()
-outBand.SetNoDataValue(-9999)
+    # for j in (0, cols, xBSize):
+    #     if j + xBSize < cols:
+    #         numCols = xBSize
+    #     else:
+    #         numCols = cols - j
+    #     # Read the data and do the work
+    #     data = band.ReadAsArray(j, i, numCols, numRows)
+    #     data = data.astype(numpy.float)
+    #     outData = numpy.where(numpy.greater(data, 0) & numpy.less_equal(data,67.5),1 ,0)
 
-# Georefrence the image and set the projection
-outDataset.SetGeoTransform(geotransform)
-outDataset.SetProjection(projectionfrom)  
+data = band.ReadAsArray(0, 0, cols, rows)
+data = data.astype(numpy.float)
+
+# loop through data 
+for index, value in numpy.ndenumerate(data):
+    if value > -9999:
+        if value > 0 and value < 67:
+            n = value
+    # outBand.WriteArray(outData, j, i)
+# outBand.FlushCache()
+# outBand.SetNoDataValue(-9999)
+
+# # Georefrence the image and set the projection
+# outDataset.SetGeoTransform(geotransform)
+# outDataset.SetProjection(projectionfrom)  
 
 outBand = None
 
@@ -89,3 +101,5 @@ outBand = None
       
 # output_dataset.GetRasterBand(1).WriteRaster( 0, 0, xsize, ysize, out_str )   
 # output_dataset = None  
+endTime = time.time()
+print 'The script tool ' + str(endTime - startTime) + ' seconds.'
