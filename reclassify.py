@@ -9,7 +9,7 @@ classification_output_values = [1,0,1] #The value assigned to each interval
 
 from osgeo import gdal  
 from osgeo.gdalconst import *  
-import numpy  
+import numpy
 import time
 
 startTime = time.time()
@@ -65,18 +65,15 @@ outBand = outDataset.GetRasterBand(1)
 data = band.ReadAsArray(0, 0, cols, rows)
 data = data.astype(numpy.float)
 
-# loop through data 
-for index, value in numpy.ndenumerate(data):
-    if value > -9999:
-        if value > 0 and value < 67:
-            n = value
-    # outBand.WriteArray(outData, j, i)
-# outBand.FlushCache()
-# outBand.SetNoDataValue(-9999)
+# use numpy select to reclassify the image 
+outData = numpy.select([data == -9999, (data >= 0) & (data <= 67.5), (data > 67.5) & (data < 292), data >=272],[-9999,1,-9999,1])
+outBand.WriteArray(outData, 0, 0)
+outBand.FlushCache()
+outBand.SetNoDataValue(-9999)
 
 # # Georefrence the image and set the projection
-# outDataset.SetGeoTransform(geotransform)
-# outDataset.SetProjection(projectionfrom)  
+outDataset.SetGeoTransform(geotransform)
+outDataset.SetProjection(projectionfrom)  
 
 outBand = None
 
